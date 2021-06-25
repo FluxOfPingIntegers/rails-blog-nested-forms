@@ -7,14 +7,13 @@ class Post < ActiveRecord::Base
   validates_presence_of :name, :content
 
   def tags_attributes=(tag_hash)
-    if tag_hash[:name].present?
+    if tag_hash.class == ActiveSupport::HashWithIndifferentAccess && Tag.new(tag_hash).valid?
       tag = Tag.find_or_create_by(tag_hash)
-      self.post_tags.build(tag_id: tag.id)
       self.save
+      PostTag.create(post_id: self.id, tag_id: tag.id)
     else
       false
     end
-
   end
 
 end
